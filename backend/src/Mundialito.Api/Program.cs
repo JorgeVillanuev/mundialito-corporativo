@@ -90,7 +90,7 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<MundialitoDbContext>();
     await dbContext.Database.MigrateAsync();
-    //await DataSeeder.SembrarSiVacioAsync(dbContext);
+    await DataSeeder.SembrarSiVacioAsync(dbContext);
 }
 
 app.Run();
