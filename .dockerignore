@@ -1,0 +1,8 @@
+.git
+**/bin
+**/obj
+**/node_modules
+**/.next
+frontend/README.md
+frontend/AGENTS.md
+frontend/CLAUDE.md

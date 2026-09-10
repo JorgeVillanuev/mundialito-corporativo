@@ -1,0 +1,1275 @@
+{
+  "info": {
+    "_postman_id": "8f3b6a2e-1c4d-4e9a-9b2f-6a7c1d0e5f3a",
+    "name": "Mundialito de Futbol Corporativo",
+    "description": "Coleccion de la Prueba Tecnica .NET Mid Level. Todas las requests usan {{baseUrl}} (ver Mundialito.postman_environment.json). Ejecutar en orden (top-to-bottom) dentro de cada carpeta: varias requests dependen de variables (equipoLocalId, partidoId, etc.) guardadas por requests anteriores.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Equipos",
+      "item": [
+        {
+          "name": "Crear equipo local (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+                  "const cuerpo = pm.response.json();",
+                  "pm.test('Devuelve un id', function () { pm.expect(cuerpo.id).to.be.a('string'); });",
+                  "pm.collectionVariables.set('equipoLocalId', cuerpo.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "postman-crear-equipo-local"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Delfines FC\",\n  \"ciudadOrigen\": \"San Salvador\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/equipos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "equipos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear equipo visitante (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+                  "const cuerpo = pm.response.json();",
+                  "pm.collectionVariables.set('equipoVisitanteId', cuerpo.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "postman-crear-equipo-visitante"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Panteras Azules\",\n  \"ciudadOrigen\": \"Santa Ana\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/equipos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "equipos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear equipo - misma Idempotency-Key y mismo payload (201, no duplica)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201 (respuesta original, no un registro nuevo)', function () { pm.response.to.have.status(201); });",
+                  "const cuerpo = pm.response.json();",
+                  "pm.test('Devuelve el mismo id que la primera creacion', function () { pm.expect(cuerpo.id).to.eql(pm.collectionVariables.get('equipoLocalId')); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "postman-crear-equipo-local"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Delfines FC\",\n  \"ciudadOrigen\": \"San Salvador\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/equipos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "equipos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear equipo - misma Idempotency-Key con payload distinto (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409', function () { pm.response.to.have.status(409); });",
+                  "pm.test('Codigo de error de idempotencia', function () { pm.expect(pm.response.json().codigoError).to.eql('IDEMPOTENCY_KEY_CONFLICTO'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "postman-crear-equipo-local"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Otro Nombre\",\n  \"ciudadOrigen\": \"Otra Ciudad\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/equipos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "equipos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear equipo - sin Idempotency-Key (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Sin Header\",\n  \"ciudadOrigen\": \"San Salvador\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/equipos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "equipos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear equipo - nombre duplicado (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409', function () { pm.response.to.have.status(409); });",
+                  "pm.test('Codigo de error de nombre duplicado', function () { pm.expect(pm.response.json().codigoError).to.eql('EQUIPO_NOMBRE_DUPLICADO'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "postman-crear-equipo-duplicado"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Delfines FC\",\n  \"ciudadOrigen\": \"Otra Ciudad\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/equipos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "equipos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar equipos - filtros y paginacion (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "const cuerpo = pm.response.json();",
+                  "pm.test('Respuesta paginada', function () { pm.expect(cuerpo).to.have.all.keys('elementos', 'numeroPagina', 'tamanoPagina', 'totalRegistros', 'totalPaginas'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/equipos?nombre=Delfines&numeroPagina=1&tamanoPagina=10&ordenarPor=nombre&direccionOrden=asc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "equipos"
+              ],
+              "query": [
+                {
+                  "key": "nombre",
+                  "value": "Delfines"
+                },
+                {
+                  "key": "numeroPagina",
+                  "value": "1"
+                },
+                {
+                  "key": "tamanoPagina",
+                  "value": "10"
+                },
+                {
+                  "key": "ordenarPor",
+                  "value": "nombre"
+                },
+                {
+                  "key": "direccionOrden",
+                  "value": "asc"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener equipo por id (200)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('equipoLocalId')) { throw new Error(\"Falta 'equipoLocalId'. Corré primero 'Equipos > Crear equipo local (201)', o usá 'Run collection' para ejecutar todo en orden.\"); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Es el equipo local', function () { pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('equipoLocalId')); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/equipos/{{equipoLocalId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "equipos",
+                "{{equipoLocalId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener equipo por id - no encontrado (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('Codigo de error', function () { pm.expect(pm.response.json().codigoError).to.eql('EQUIPO_NO_ENCONTRADO'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/equipos/00000000-0000-0000-0000-000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "equipos",
+                "00000000-0000-0000-0000-000000000000"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Actualizar equipo (204)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('equipoLocalId')) { throw new Error(\"Falta 'equipoLocalId'. Corré primero 'Equipos > Crear equipo local (201)', o usá 'Run collection' para ejecutar todo en orden.\"); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Delfines FC\",\n  \"ciudadOrigen\": \"San Salvador (actualizado)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/equipos/{{equipoLocalId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "equipos",
+                "{{equipoLocalId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jugadores",
+      "item": [
+        {
+          "name": "Registrar jugador en equipo local (201)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('equipoLocalId')) { throw new Error(\"Falta 'equipoLocalId'. Corré primero 'Equipos > Crear equipo local (201)', o usá 'Run collection' para ejecutar todo en orden.\"); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set('jugadorLocalId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "postman-registrar-jugador-local"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Juan Perez\",\n  \"posicion\": \"Delantero\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/equipos/{{equipoLocalId}}/jugadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "equipos",
+                "{{equipoLocalId}}",
+                "jugadores"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Registrar jugador en equipo visitante (201)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('equipoVisitanteId')) { throw new Error(\"Falta 'equipoVisitanteId'. Corré primero 'Equipos > Crear equipo visitante (201)', o usá 'Run collection' para ejecutar todo en orden.\"); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set('jugadorVisitanteId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "postman-registrar-jugador-visitante"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Carlos Diaz\",\n  \"posicion\": \"Delantero\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/equipos/{{equipoVisitanteId}}/jugadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "equipos",
+                "{{equipoVisitanteId}}",
+                "jugadores"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar jugadores de un equipo (200)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('equipoLocalId')) { throw new Error(\"Falta 'equipoLocalId'. Corré primero 'Equipos > Crear equipo local (201)', o usá 'Run collection' para ejecutar todo en orden.\"); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Al menos un jugador', function () { pm.expect(pm.response.json().elementos.length).to.be.above(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/equipos/{{equipoLocalId}}/jugadores?numeroPagina=1&tamanoPagina=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "equipos",
+                "{{equipoLocalId}}",
+                "jugadores"
+              ],
+              "query": [
+                {
+                  "key": "numeroPagina",
+                  "value": "1"
+                },
+                {
+                  "key": "tamanoPagina",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Registrar jugador - equipo inexistente (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "postman-registrar-jugador-inexistente"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Jugador Fantasma\",\n  \"posicion\": \"Arquero\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/equipos/11111111-1111-1111-1111-111111111111/jugadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "equipos",
+                "11111111-1111-1111-1111-111111111111",
+                "jugadores"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Partidos",
+      "item": [
+        {
+          "name": "Crear partido (201)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('equipoLocalId')) { throw new Error(\"Falta 'equipoLocalId'. Corré primero 'Equipos > Crear equipo local (201)', o usá 'Run collection' para ejecutar todo en orden.\"); }",
+                  "if (!pm.collectionVariables.get('equipoVisitanteId')) { throw new Error(\"Falta 'equipoVisitanteId'. Corré primero 'Equipos > Crear equipo visitante (201)', o usá 'Run collection' para ejecutar todo en orden.\"); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set('partidoId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "postman-crear-partido"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"equipoLocalId\": \"{{equipoLocalId}}\",\n  \"equipoVisitanteId\": \"{{equipoVisitanteId}}\",\n  \"fechaHora\": \"2026-08-01T15:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/partidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "partidos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear partido - equipo local = visitante (409)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('equipoLocalId')) { throw new Error(\"Falta 'equipoLocalId'. Corré primero 'Equipos > Crear equipo local (201)', o usá 'Run collection' para ejecutar todo en orden.\"); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409', function () { pm.response.to.have.status(409); });",
+                  "pm.test('Codigo de error', function () { pm.expect(pm.response.json().codigoError).to.eql('PARTIDO_EQUIPOS_IGUALES_CONFLICTO'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "postman-crear-partido-invalido"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"equipoLocalId\": \"{{equipoLocalId}}\",\n  \"equipoVisitanteId\": \"{{equipoLocalId}}\",\n  \"fechaHora\": \"2026-08-01T15:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/partidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "partidos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar partidos - filtros y paginacion (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/partidos?estado=Programado&fechaDesde=2026-01-01T00:00:00Z&fechaHasta=2026-12-31T00:00:00Z&numeroPagina=1&tamanoPagina=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "partidos"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "Programado"
+                },
+                {
+                  "key": "fechaDesde",
+                  "value": "2026-01-01T00:00:00Z"
+                },
+                {
+                  "key": "fechaHasta",
+                  "value": "2026-12-31T00:00:00Z"
+                },
+                {
+                  "key": "numeroPagina",
+                  "value": "1"
+                },
+                {
+                  "key": "tamanoPagina",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener partido por id (200)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('partidoId')) { throw new Error(\"Falta 'partidoId'. Corré primero 'Partidos > Crear partido (201)', o usá 'Run collection' para ejecutar todo en orden.\"); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/partidos/{{partidoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "partidos",
+                "{{partidoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Registrar resultado - suma de goleadores inconsistente (400)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('partidoId')) { throw new Error(\"Falta 'partidoId'. Corré primero 'Partidos > Crear partido (201)', o usá 'Run collection' para ejecutar todo en orden.\"); }",
+                  "if (!pm.collectionVariables.get('jugadorLocalId')) { throw new Error(\"Falta 'jugadorLocalId'. Corré primero 'Jugadores > Registrar jugador en equipo local (201)', o usá 'Run collection' para ejecutar todo en orden.\"); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Codigo de error', function () { pm.expect(pm.response.json().codigoError).to.eql('PARTIDO_GOLES_INCONSISTENTES'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"golesLocal\": 2,\n  \"golesVisitante\": 1,\n  \"goleadores\": [\n    { \"jugadorId\": \"{{jugadorLocalId}}\", \"cantidadGoles\": 1 }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/partidos/{{partidoId}}/resultado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "partidos",
+                "{{partidoId}}",
+                "resultado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Registrar resultado (204)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('partidoId')) { throw new Error(\"Falta 'partidoId'. Corré primero 'Partidos > Crear partido (201)', o usá 'Run collection' para ejecutar todo en orden.\"); }",
+                  "if (!pm.collectionVariables.get('jugadorLocalId')) { throw new Error(\"Falta 'jugadorLocalId'. Corré primero 'Jugadores > Registrar jugador en equipo local (201)', o usá 'Run collection' para ejecutar todo en orden.\"); }",
+                  "if (!pm.collectionVariables.get('jugadorVisitanteId')) { throw new Error(\"Falta 'jugadorVisitanteId'. Corré primero 'Jugadores > Registrar jugador en equipo visitante (201)', o usá 'Run collection' para ejecutar todo en orden.\"); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"golesLocal\": 2,\n  \"golesVisitante\": 1,\n  \"goleadores\": [\n    { \"jugadorId\": \"{{jugadorLocalId}}\", \"cantidadGoles\": 2 },\n    { \"jugadorId\": \"{{jugadorVisitanteId}}\", \"cantidadGoles\": 1 }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/partidos/{{partidoId}}/resultado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "partidos",
+                "{{partidoId}}",
+                "resultado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Registrar resultado - partido ya jugado (409)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('partidoId')) { throw new Error(\"Falta 'partidoId'. Corré primero 'Partidos > Crear partido (201)', o usá 'Run collection' para ejecutar todo en orden.\"); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409', function () { pm.response.to.have.status(409); });",
+                  "pm.test('Codigo de error', function () { pm.expect(pm.response.json().codigoError).to.eql('PARTIDO_YA_JUGADO_CONFLICTO'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"golesLocal\": 0,\n  \"golesVisitante\": 0,\n  \"goleadores\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/partidos/{{partidoId}}/resultado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "partidos",
+                "{{partidoId}}",
+                "resultado"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Posiciones",
+      "item": [
+        {
+          "name": "Obtener tabla de posiciones (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "const cuerpo = pm.response.json();",
+                  "pm.test('Trae al menos un equipo', function () { pm.expect(cuerpo.elementos.length).to.be.above(0); });",
+                  "pm.test('Orden fijo: puntos descendente', function () {",
+                  "  const puntos = cuerpo.elementos.map(function (e) { return e.puntos; });",
+                  "  const ordenado = [...puntos].sort(function (a, b) { return b - a; });",
+                  "  pm.expect(puntos).to.eql(ordenado);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/posiciones?numeroPagina=1&tamanoPagina=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "posiciones"
+              ],
+              "query": [
+                {
+                  "key": "numeroPagina",
+                  "value": "1"
+                },
+                {
+                  "key": "tamanoPagina",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Goleadores",
+      "item": [
+        {
+          "name": "Obtener goleadores (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/goleadores?ordenarPor=cantidadGoles&direccionOrden=desc&numeroPagina=1&tamanoPagina=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "goleadores"
+              ],
+              "query": [
+                {
+                  "key": "ordenarPor",
+                  "value": "cantidadGoles"
+                },
+                {
+                  "key": "direccionOrden",
+                  "value": "desc"
+                },
+                {
+                  "key": "numeroPagina",
+                  "value": "1"
+                },
+                {
+                  "key": "tamanoPagina",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener goleadores - filtrado por equipo (200)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('equipoLocalId')) { throw new Error(\"Falta 'equipoLocalId'. Corré primero 'Equipos > Crear equipo local (201)', o usá 'Run collection' para ejecutar todo en orden.\"); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "const cuerpo = pm.response.json();",
+                  "pm.test('Todos los goleadores son del equipo filtrado', function () {",
+                  "  cuerpo.elementos.forEach(function (g) { pm.expect(g.nombreEquipo).to.eql('Delfines FC'); });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/goleadores?equipoId={{equipoLocalId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "goleadores"
+              ],
+              "query": [
+                {
+                  "key": "equipoId",
+                  "value": "{{equipoLocalId}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Equipos - Eliminar",
+      "item": [
+        {
+          "name": "Eliminar equipo con dependencias (409)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('equipoLocalId')) { throw new Error(\"Falta 'equipoLocalId'. Corré primero 'Equipos > Crear equipo local (201)', o usá 'Run collection' para ejecutar todo en orden.\"); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409', function () { pm.response.to.have.status(409); });",
+                  "pm.test('Codigo de error', function () { pm.expect(pm.response.json().codigoError).to.eql('EQUIPO_CON_DEPENDENCIAS_CONFLICTO'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/equipos/{{equipoLocalId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "equipos",
+                "{{equipoLocalId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Eliminar equipo inexistente (204, idempotente)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/equipos/00000000-0000-0000-0000-000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "equipos",
+                "00000000-0000-0000-0000-000000000000"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "equipoLocalId",
+      "value": ""
+    },
+    {
+      "key": "equipoVisitanteId",
+      "value": ""
+    },
+    {
+      "key": "jugadorLocalId",
+      "value": ""
+    },
+    {
+      "key": "jugadorVisitanteId",
+      "value": ""
+    },
+    {
+      "key": "partidoId",
+      "value": ""
+    }
+  ]
+}
